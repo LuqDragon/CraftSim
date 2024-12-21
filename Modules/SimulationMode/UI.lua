@@ -731,12 +731,13 @@ function CraftSim.SIMULATION_MODE.UI:InitOptionalReagentItemSelectors(recipeData
     end
 end
 
-function CraftSim.SIMULATION_MODE.UI:UpdateVisibility()
+function CraftSim.SIMULATION_MODE.UI:UpdateVisibility(showSimulationMode)
     local recipeData = CraftSim.INIT.currentRecipeData
     if not recipeData then
         return -- In what case is this nil?
     end
 
+    if (not showSimulationMode) then return end
 
     print("Update Visibility: hasQualityReagents " .. tostring(recipeData.hasQualityReagents))
 

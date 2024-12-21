@@ -184,6 +184,7 @@ function CraftSim.RecipeData:new(options)
     end)
 
     self.hasQualityReagents = qualityReagents > 0
+    -- self.hasQualityReagents = true
 
     self.hasReagents = #self.reagentData.requiredReagents > 0
 

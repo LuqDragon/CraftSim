@@ -187,9 +187,9 @@ function CraftSim.RECIPE_SCAN.FilterRecipeInfo(crafterUID, recipeInfo)
         return professionInfo.professionID == skillLineID
     end)
 
-    if recipeExpansionIncluded and recipeInfo.isEnchantingRecipe then
+    if recipeExpansionIncluded and recipeInfo.isEnchantingRecipe and professionInfo.profession == Enum.Profession.Enchanting then
         local baseOperationInfo = C_TradeSkillUI.GetCraftingOperationInfo(recipeInfo.recipeID, {}, nil, false)
-        if not baseOperationInfo then return false end
+        if not baseOperationInfo then return true end
         -- except if its a tinker with no output
         local enchantData = CraftSim.ENCHANT_RECIPE_DATA[baseOperationInfo.craftingDataID]
         if enchantData then
@@ -560,12 +560,17 @@ function CraftSim.RECIPE_SCAN:SendToCraftQueue()
             local restockAmount = CraftSim.DB.OPTIONS:Get("RECIPESCAN_SEND_TO_CRAFTQUEUE_DEFAULT_QUEUE_AMOUNT") or 1
 
             if TSM_API and CraftSim.DB.OPTIONS:Get("RECIPESCAN_SEND_TO_CRAFTQUEUE_USE_TSM_RESTOCK_EXPRESSION") then
-                local tsmItemString = TSM_API.ToItemString(recipeData.resultData.expectedItem:GetItemLink())
-                restockAmount = TSM_API.GetCustomPriceValue(CraftSim.DB.OPTIONS:Get("TSM_RESTOCK_KEY_ITEMS"),
-                    tsmItemString) or 1
+                local itemLink = recipeData.resultData.expectedItem:GetItemLink()
+                local tsmItemString = TSM_API.ToItemString(itemLink)
+                local auctionAmount = CraftSim.PRICE_SOURCE:GetAuctionAmount(itemLink)
+
+                restockAmount = (TSM_API.GetCustomPriceValue(CraftSim.DB.OPTIONS:Get("TSM_RESTOCK_KEY_ITEMS"),
+                    tsmItemString) or 0) - auctionAmount
             end
 
-            CraftSim.CRAFTQ:AddRecipe { recipeData = recipeData, amount = restockAmount }
+            if restockAmount > 1 then
+                CraftSim.CRAFTQ:AddRecipe { recipeData = recipeData, amount = restockAmount }
+            end
 
             frameDistributor:Continue()
         end

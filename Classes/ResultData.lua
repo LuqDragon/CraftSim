@@ -56,6 +56,11 @@ function CraftSim.ResultData:UpdatePossibleResultItems()
             table.insert(self.itemsByQuality, Item:CreateFromItemID(itemID))
         end
         -- only for quality supporting gear, non quality gear would be the toylike Scepter of Spectacle: Air for example
+    elseif recipeData.isEnchantingRecipe and recipeData.isOldWorldRecipe and recipeData.professionData.professionInfo.profession == Enum.Profession.Enchanting then
+        if CraftSim.OLD_ENCHANT_RECIPE_DATA[recipeData.recipeID] then
+            table.insert(self.itemsByQuality,
+                Item:CreateFromItemID(CraftSim.OLD_ENCHANT_RECIPE_DATA[recipeData.recipeID]))
+        end
     elseif recipeData.isGear and recipeData.supportsQualities then
         local itemLinks = CraftSim.UTIL:GetDifferentQualitiesByCraftingReagentTbl(recipeData.recipeID,
             craftingReagentInfoTbl, recipeData.allocationItemGUID, recipeData.maxQuality)
